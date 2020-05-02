@@ -5,11 +5,17 @@
         title="Task List"
       />
       <div class="wrapper">
+        <app-button 
+          class="create-button"
+          text="Создать"
+          :clickHandler="addTask"
+        />
         <div class="tasks__list">
           <app-card 
             v-for="task in tasks" 
             :key="task.id"
             :task="task"
+            :deleteTask="deleteTask"
           />
         </div>
       </div>
@@ -19,15 +25,31 @@
 
 <script>
 import Header from '@/components/Common/Header'
+import Button from '@/components/Common/Button'
 import Card from '@/components/Todo/Card'
 export default {
   components: {
     'app-header': Header,
+    'app-button': Button,
     'app-card': Card
   },
   computed: {
     tasks () {
-      return this.$store.getters.getTasks
+      const tasks = this.$store.getters.getTasks
+      if (Object.keys(tasks).length) {
+        return tasks
+      } else {
+        this.$store.dispatch('fetchTasks')
+        return tasks
+      }
+    }
+  },
+  methods: {
+    addTask () {
+      this.$store.dispatch('addTask')
+    },
+    deleteTask (id) {
+      this.$store.dispatch('deleteTask', id)
     }
   }
 }
@@ -41,5 +63,8 @@ export default {
       grid-template-columns: repeat(2, 1fr,);
       grid-gap: 30px;
     }
+  }
+  .create-button{
+    margin-top: 20px;
   }
 </style>

@@ -11,11 +11,11 @@ export default class Todo {
 
   setChecked (checked) {
     this.checked = checked
-  },
+  }
 
   setText (text) {
     this.text = text
-  },
+  }
 
   getResult () {
     return {

@@ -10,6 +10,7 @@
         <app-button 
           text="Удалить" 
           danger 
+          :clickHandler="() => deleteTask(task.id)"
         />
       </div>
     </div>
@@ -37,7 +38,8 @@ export default {
     'app-button': Button
   },
   props: [
-    'task'
+    'task',
+    'deleteTask'
   ],
   methods: {
     goToTask (id) {
