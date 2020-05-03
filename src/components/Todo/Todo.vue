@@ -4,13 +4,37 @@
       <app-check-input 
         v-if="editable" 
         :checked="todo.checked"
-        :changeFuncion="() => setValue('checked', !todo.checked)"
+        :changeFuncion="() => setTodoValue('checked', !todo.checked)"
       />
-      <p class="todo__text">{{todo.text}}</p>
+      <p class="todo__text">
+        <span>{{todo.text}}</span>
+        <app-input 
+          class="todo__input" 
+          v-if="editing" 
+          :propValue="todo.text"
+          :changeFunction="setInputText"
+          name="todoText"
+        />
+      </p>
     </div>
     <div v-if="editable" class="todo__controls">
+      <div
+        v-if="editing"
+      >
+        <app-button 
+          text="Подтвердить"
+          :clickHandler="() => submitEditing(false)"
+        />
+        <app-button 
+          text="Отменить"
+          :clickHandler="() => cancelEditing(false)"
+          warning
+        />
+      </div>
       <app-button 
+        v-else
         text="Редактировать"
+        :clickHandler="() => setEdining(true)"
       />
       <app-button 
         text="Удалить" 
@@ -23,19 +47,55 @@
 <script>
 import CheckInput from '@/components/Common/CheckInput'
 import Button from '@/components/Common/Button'
+import Input from '@/components/Common/Input'
 export default {
   components: {
     'app-check-input': CheckInput,
-    'app-button': Button
+    'app-button': Button,
+    'app-input': Input
   },
   props: [
     'todo',
-    'editable'
+    'editable',
+    'addChanges'
   ],
+  data () {
+    return {
+      editing: false,
+      todoText: ''
+    }
+  },
   methods: {
-    setValue (key, value) {
-      console.log(key, '-', value)
+    setTodoValue (key, value) {
+      const oldValue = this.todo[key]
+      this.addChanges(this.todo.id, key, oldValue)
       this.todo[key] = value
+    },
+
+    setInputText (name, value) {
+      this[name] = value
+    },
+
+    saveText () {
+      this.setTodoValue('text', this.todoText)
+    },
+
+    clearText () {
+      this.todoText = ''
+    },
+
+    setEdining (value) {
+      this.editing = value
+    },
+
+    submitEditing () {
+      this.saveText()
+      this.setEdining(false)
+    },
+
+    cancelEditing () {
+      this.clearText()
+      this.setEdining(false)
     }
   }
 }
@@ -55,6 +115,18 @@ export default {
   &__text{
     font-size: 16px;
     margin-left: 5px;
+    position: relative;
+  }
+  &__input{
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    min-width: 150px;
+  }
+  &__controls{
+    display: flex;
+    align-items: center;
   }
 }
 </style>

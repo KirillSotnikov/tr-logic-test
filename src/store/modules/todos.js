@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid'
 import Todo from '@/utils/Todo'
 import { API_URL } from '../../constants/index'
 import axios from 'axios'
@@ -11,11 +10,19 @@ export default {
     fetchTasks (state, payload) {
       state.tasks = payload
     },
+    fetchTaskById (state, payload) {
+      state.tasks.push(payload)
+    },
     addTask (state, payload) {
-      state.tasks.unshift(payload)
+      state.tasks.push(payload)
     },
     deleteTask (state, payload) {
       state.tasks = state.tasks.filter(task => task.id !== payload)
+    },
+    addTodo (state, payload) {
+      const { id, todo } = payload
+      const task = state.tasks.find(item => item.id === id)
+      task.todos.push(todo)
     }
   },
   actions: {
@@ -31,26 +38,35 @@ export default {
       commit('fetchTasks', tasks)
     },
 
-    async addTask ({ commit }) {
+    async addTask ({ commit }, payload) {
       try {
-        const task = {
-          name: 'Task 1',
-          todos: [
-            new Todo({id: uuidv4(), text: 'Todo 1'}),
-            new Todo({id: uuidv4(), text: 'Todo 2'}),
-            new Todo({id: uuidv4(), text: 'Todo 3'}),
-            new Todo({id: uuidv4(), text: 'Todo 4'}),
-          ]
-        }
-        const res = await axios.post(`${API_URL}/tasks.json`, task)
+        // const task = {
+        //   name: 'Task 1',
+        //   todos: [
+        //     new Todo({ text: 'Todo 1' }),
+        //     new Todo({ text: 'Todo 2' }),
+        //     new Todo({ text: 'Todo 3' }),
+        //     new Todo({ text: 'Todo 4' }),
+        //   ]
+        // }
+        const res = await axios.post(`${API_URL}/tasks.json`, payload)
         const taskResult = {
-          ...task,
+          ...payload,
           id: res.data.name
         }
         commit('addTask', taskResult)
       } catch (err) {
         console.log(err)
       }
+    },
+
+    async fetchTaskById ({ commit }, payload) {
+      const res = await axios.get(`${API_URL}/tasks/${payload}.json`)
+      const fetchResult = {
+        ...res.data,
+        id: payload
+      }
+      commit('fetchTaskById', fetchResult)
     },
 
     async deleteTask ({ commit }, payload) {
@@ -61,6 +77,16 @@ export default {
       } catch (err) {
         console.log(err)
       }
+    },
+
+    addTodo ({ commit }, payload) {
+      const  {id, text } = payload
+      const todo = new Todo({ text })
+      const newTodoData = {
+        id,
+        todo
+      }
+      commit('addTodo', newTodoData)
     }
 
   },
@@ -69,7 +95,6 @@ export default {
       return state.tasks
     },
     getTaskById (state) {
-      console.log(state.tasks)
       return id => {
         return state.tasks.find(task => task.id === id)
       }

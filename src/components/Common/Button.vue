@@ -1,8 +1,9 @@
 <template>
   <button 
     class="button"
-    :class="{ 'button-danger' : danger }"
+    :class="{ 'button-danger' : danger, 'button-warning' : warning }"
     @click="clickHandler"
+    :type="type"
   >
     {{text}}
   </button>
@@ -19,9 +20,17 @@ export default {
       type: Boolean,
       default: false
     },
+    warning: {
+      type: Boolean,
+      default: false
+    },
     clickHandler: {
       type: Function,
       default: () => {}
+    },
+    type: {
+      type: String,
+      default: 'button'
     }
   }
 }
@@ -48,6 +57,15 @@ export default {
     color: #e74c3c;
     &:hover{
       background: #e74c3c;
+      color: #fff;
+      border-color: #fff;
+    }
+  }
+  &-warning{
+    border-color: #e67e22;
+    color: #e67e22;
+    &:hover{
+      background: #e67e22;
       color: #fff;
       border-color: #fff;
     }

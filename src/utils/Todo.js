@@ -1,6 +1,8 @@
+import { v4 as uuidv4 } from 'uuid'
+
 export default class Todo {
   constructor ({ id, checked, text }) {
-    this.id = id || ''
+    this.id = id || uuidv4()
     this.checked = checked || false
     this.text = text || ''
   }
