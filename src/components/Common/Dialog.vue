@@ -59,6 +59,7 @@ export default {
       border: 1px solid #16a085;
       border-radius: 15px;
       padding: 30px 50px;
+      box-sizing: border-box;
     }
     &__header{
       padding-right: 30px;

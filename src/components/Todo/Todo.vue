@@ -112,10 +112,17 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    @media screen and (max-width: 991px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
   &__label{
     display: flex;
     align-items: center;
+    @media screen and (max-width: 991px) {
+      margin-bottom: 10px;
+    }
   }
   &__text{
     font-size: 16px;

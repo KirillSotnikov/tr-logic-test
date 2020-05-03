@@ -182,6 +182,9 @@ export default {
       display: grid;
       grid-template-columns: repeat(2, 1fr,);
       grid-gap: 30px;
+      @media screen and (max-width:991px){
+      grid-template-columns: repeat(1, 1fr,);
+      }
     }
   }
   .create-button{

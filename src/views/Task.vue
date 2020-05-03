@@ -261,6 +261,10 @@ export default {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      @media screen and (max-width:991px){
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
     &__controls{
       display: flex;
@@ -285,6 +289,9 @@ export default {
         height: 1px;
         background: #16a085;
         transition: all .2s ease-in;
+      }
+      @media screen and (max-width:991px){
+        margin-bottom: 10px;
       }
     }
   }
