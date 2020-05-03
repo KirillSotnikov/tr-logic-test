@@ -5,11 +5,11 @@
       <app-dialog 
         :isOpened="isOpenedDialog"
         :closeFunction="closeDialog"
-        title="Create Task"
+        title="Создать задачу"
       >
         <form @submit.prevent="addTask" class="dialog_forn">
           <app-input 
-            placeholder="Task Name"
+            placeholder="Название задачи"
             name="name"
             :changeFunction="onInputChange"
           />
@@ -31,10 +31,32 @@
         </form>
       </app-dialog>
     </transition>
-    
+
+    <transition mode="out-in" name="fade">
+      <app-dialog 
+        :isOpened="isOpenedPrompt"
+        :closeFunction="closePrompt"
+        title="Подтвердить действие"
+      >
+        <div class="prompt__body">
+          <app-button 
+            text="Подтвердить"
+            type="submit"
+            :clickHandler="() => promptHandler()"
+          />
+          <app-button 
+            text="Отклонить"
+            type="submit"
+            danger
+            :clickHandler="this.closePrompt"
+          />
+        </div>
+      </app-dialog>
+    </transition>
+
     <div class="tasks">
       <app-header
-        title="Task List"
+        title="Список задач"
       />
       <div class="wrapper">
         <app-button 
@@ -42,16 +64,20 @@
           text="Создать"
           :clickHandler="openDialog"
         />
-        <div class="tasks__list">
+        <div v-if="tasks.length" class="tasks__list">
           <app-card 
             v-for="task in tasks" 
             :key="task.id"
             :task="task"
             :deleteTask="deleteTask"
+            :openPrompt="openPrompt"
+            :maxTodosCount="maxTodosCount"
           />
         </div>
+        <div v-else class="page-text">Задач нет :(</div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -78,14 +104,17 @@ export default {
         name: '',
         todos: []
       },
-      formErrors: []
+      formErrors: [],
+      isOpenedPrompt: false,
+      promptHandler: () => {},
+      maxTodosCount: 4
     }
   },
   computed: {
     tasks () {
       const tasks = this.$store.getters.getTasks
       return tasks
-    }
+    } 
   },
   mounted () {
     this.fetchTasks()
@@ -121,15 +150,26 @@ export default {
       this.closeDialog()
     },
 
-    deleteTask (id) {
-      this.$store.dispatch('deleteTask', id)
+    async deleteTask (id) {
+      await this.$store.dispatch('deleteTask', id)
+      this.closePrompt()
     },
 
     openDialog () {
       this.isOpenedDialog = true
     },
+
     closeDialog () {
       this.isOpenedDialog = false
+    },
+
+    openPrompt (handler, id) {
+      this.isOpenedPrompt = true
+      this.promptHandler = handler.bind(null, id)
+    },
+
+    closePrompt () {
+      this.isOpenedPrompt = false
     }
   }
 }
@@ -158,5 +198,11 @@ export default {
       list-style: disc;
       color: #c0392b;
     }
+  }
+  .page-text{
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 20px;
   }
 </style>

@@ -5,11 +5,11 @@
       <app-dialog 
         :isOpened="isOpenedDialog"
         :closeFunction="closeDialog"
-        title="Create Todo"
+        title="Создать ToDo"
       >
         <form @submit.prevent="addTodo" class="dialog_forn">
           <app-input 
-            placeholder="Todo Text"
+            placeholder="Текст ToDo"
             name="text"
             :changeFunction="onInputChange"
           />
@@ -31,20 +31,54 @@
         </form>
       </app-dialog>
     </transition>
+    
+    <transition mode="out-in" name="fade">
+      <app-dialog 
+        :isOpened="isOpenedPrompt"
+        :closeFunction="closePrompt"
+        title="Подтвердить действие"
+      >
+        <div class="prompt__body">
+          <app-button 
+            text="Подтвердить"
+            type="submit"
+            :clickHandler="() => promptHandler()"
+          />
+          <app-button 
+            text="Отклонить"
+            type="submit"
+            danger
+            :clickHandler="this.closePrompt"
+          />
+        </div>
+      </app-dialog>
+    </transition>
 
     <app-header
       :title="task.name"
     />
+    
     <div class="wrapper">
       <div class="task__header">
         <router-link class="task__link" to="/todos">
-          Task List
+          Назад к списку
         </router-link>
         <div class="task__controls">
           <app-button 
             class="create-button"
             text="Создать"
             :clickHandler="openDialog"
+          />
+          <app-button 
+            class="create-button"
+            text="Сохранить"
+            :clickHandler="saveTask"
+          />
+          <app-button 
+            class="create-button"
+            text="Удалить"
+            danger
+            :clickHandler="() => this.openPrompt(this.deleteTask, this.task.id)"
           />
           <app-button 
             v-if="changedArray.length"
@@ -55,13 +89,16 @@
           />
         </div>
       </div>
-      <div class="task__list">
+      <div v-if="task.todos.length" class="task__list">
         <app-todo-item
           v-for="todo in task.todos"
           :key="todo.id"
           :todo="todo"
           :editable="true"
           :addChanges="addChanges"
+          :deleteFunction="deleteTodo"
+          :openPrompt="openPrompt"
+          :closePrompt="closePrompt"
         />
       </div>
     </div>
@@ -91,6 +128,9 @@ export default {
     task () {
       const task = this.$store.getters.getTaskById(this.id)
       if (task) {
+        if (task.todos === undefined) {
+          task.todos = []
+        }
         return task
       } else {
         this.$store.dispatch('fetchTaskById', this.id)
@@ -105,10 +145,32 @@ export default {
       formData: {
         text: ''
       },
-      formErrors: []
+      formErrors: [],
+      isOpenedPrompt: false,
+      promptHandler: () => {}
     }
   },
   methods: {
+    async deleteTask (id) {
+      await this.$store.dispatch('deleteTask', id)
+      this.$router.push('/todos')
+    },
+
+    saveTask () {
+      const payload = {
+        ...this.task
+      }
+      this.$store.dispatch('saveTask', payload)
+    },
+
+    async deleteTodo (id) {
+      const payload = {
+        taskId: this.task.id,
+        todoId: id
+      }
+      await this.$store.dispatch('deleteTodo', payload)
+      this.closePrompt()
+    },
     
     onInputChange (name, value) {
       this.formData[name] = value
@@ -167,8 +229,18 @@ export default {
     openDialog () {
       this.isOpenedDialog = true
     },
+
     closeDialog () {
       this.isOpenedDialog = false
+    },
+
+    openPrompt (handler, id) {
+      this.isOpenedPrompt = true
+      this.promptHandler = handler.bind(null, id)
+    },
+
+    closePrompt () {
+      this.isOpenedPrompt = false
     }
   }
 }
@@ -214,6 +286,19 @@ export default {
         background: #16a085;
         transition: all .2s ease-in;
       }
+    }
+  }
+  .dialog_forn{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .dialog_errors{
+    width: 100%;
+    margin-bottom: 20px;
+    &__item{
+      list-style: disc;
+      color: #c0392b;
     }
   }
 </style>

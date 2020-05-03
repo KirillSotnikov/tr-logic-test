@@ -1,5 +1,5 @@
 import Todo from '@/utils/Todo'
-import { API_URL } from '../../constants/index'
+import { API_URL } from '../../constants'
 import axios from 'axios'
 
 export default {
@@ -23,32 +23,36 @@ export default {
       const { id, todo } = payload
       const task = state.tasks.find(item => item.id === id)
       task.todos.push(todo)
+    },
+    saveTask (state, payload) {
+      console.log(payload)
+      console.log(state)
+    },
+    deleteTodo (state, payload) {
+      const { taskId, todoId } = payload
+      const currentTask = state.tasks.find(task => task.id === taskId)
+      currentTask.todos = currentTask.todos.filter(todo => todo.id !== todoId)
     }
   },
   actions: {
     
     async fetchTasks ({ commit }) {
-      const res = await axios.get(`${API_URL}/tasks.json`)
-      const tasks = Object.keys(res.data).map(key => {
-        return {
-          ...res.data[key],
-          id: key
-        }
-      })
-      commit('fetchTasks', tasks)
+      try {
+        const res = await axios.get(`${API_URL}/tasks.json`)
+        const tasks = Object.keys(res.data).map(key => {
+          return {
+            ...res.data[key],
+            id: key
+          }
+        })
+        commit('fetchTasks', tasks)
+      } catch (err) {
+        console.log(err)
+      }
     },
 
     async addTask ({ commit }, payload) {
       try {
-        // const task = {
-        //   name: 'Task 1',
-        //   todos: [
-        //     new Todo({ text: 'Todo 1' }),
-        //     new Todo({ text: 'Todo 2' }),
-        //     new Todo({ text: 'Todo 3' }),
-        //     new Todo({ text: 'Todo 4' }),
-        //   ]
-        // }
         const res = await axios.post(`${API_URL}/tasks.json`, payload)
         const taskResult = {
           ...payload,
@@ -61,19 +65,22 @@ export default {
     },
 
     async fetchTaskById ({ commit }, payload) {
-      const res = await axios.get(`${API_URL}/tasks/${payload}.json`)
-      const fetchResult = {
-        ...res.data,
-        id: payload
+      try {
+        const res = await axios.get(`${API_URL}/tasks/${payload}.json`)
+        const fetchResult = {
+          ...res.data,
+          id: payload
+        }
+        commit('fetchTaskById', fetchResult)
+      } catch (err) {
+        console.log(err)
       }
-      commit('fetchTaskById', fetchResult)
     },
 
     async deleteTask ({ commit }, payload) {
       try {
-        const res = await axios.delete(`${API_URL}/tasks/${payload}.json`)
+        await axios.delete(`${API_URL}/tasks/${payload}.json`)
         commit('deleteTask', payload)
-        console.log(res)
       } catch (err) {
         console.log(err)
       }
@@ -87,6 +94,19 @@ export default {
         todo
       }
       commit('addTodo', newTodoData)
+    },
+
+    async saveTask (context, payload) {
+      try {
+        const { id } = payload
+        await axios.put(`${API_URL}/tasks/${id}.json`, payload)
+      } catch (err) {
+        console.log(err)
+      }
+    },
+
+    deleteTodo ({ commit }, payload) {
+      commit('deleteTodo', payload)
     }
 
   },

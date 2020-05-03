@@ -10,14 +10,14 @@
         <app-button 
           text="Удалить" 
           danger 
-          :clickHandler="() => deleteTask(task.id)"
+          :clickHandler="() => this.openPrompt(this.deleteTask, this.task.id)"
         />
       </div>
     </div>
-    <div class="card__body">
+    <div v-if="task.todos" class="card__body">
       <div class="todos">
         <app-todo-item
-          v-for="todo in task.todos"
+          v-for="todo in task.todos.slice(0, maxTodosCount)"
           :key="todo.id"
           :todo="todo"
           :editable="false"
@@ -39,7 +39,9 @@ export default {
   },
   props: [
     'task',
-    'deleteTask'
+    'deleteTask',
+    'openPrompt',
+    'maxTodosCount'
   ],
   methods: {
     goToTask (id) {

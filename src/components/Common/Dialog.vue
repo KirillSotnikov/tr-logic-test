@@ -34,11 +34,12 @@ export default {
 
 <style lang="scss" scoped>
   .dialog{
-    display: fixed;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    z-index: 2;
     &__overlay{
       position: absolute;
       left: 0;
@@ -52,7 +53,7 @@ export default {
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      max-width: 700px;
+      max-width: 500px;
       width: 100%;
       background: #fff;
       border: 1px solid #16a085;

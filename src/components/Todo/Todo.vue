@@ -27,7 +27,7 @@
         />
         <app-button 
           text="Отменить"
-          :clickHandler="() => cancelEditing(false)"
+          :clickHandler="() => this.openPrompt(this.cancelEditing, false)"
           warning
         />
       </div>
@@ -39,6 +39,7 @@
       <app-button 
         text="Удалить" 
         danger
+        :clickHandler="() => this.openPrompt(this.deleteFunction, this.todo.id)"
       />
     </div>
   </div>
@@ -57,7 +58,10 @@ export default {
   props: [
     'todo',
     'editable',
-    'addChanges'
+    'addChanges',
+    'deleteFunction',
+    'openPrompt',
+    'closePrompt'
   ],
   data () {
     return {
@@ -86,6 +90,7 @@ export default {
 
     setEdining (value) {
       this.editing = value
+      this.closePrompt()
     },
 
     submitEditing () {
